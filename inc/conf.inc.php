@@ -149,7 +149,7 @@ function isAdmin($user) {
 function isAccountLocked($user) {
 	$ds = ldap_connect('dc2.kcisd.local');
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
-	$bd = ldap_bind($ds,'kcisd\networkscanner','Wildcat7');
+	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
 	$dn="OU=Campuses,DC=kcisd,DC=local";
 	$filter="samaccountname=".$user;
 	$result=ldap_search($ds,$dn,$filter, array('useraccountcontrol'));
@@ -299,23 +299,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 				fclose($fp);
 				
 				chmod('conf/'.strtolower($_POST['uname']).'.php', 0660);
-				// chown('conf/'.strtolower($_POST['uname']).'.php', 'jmccaughey');
 			}
 			
-			/*
-			Add code to write the username and encrypted password to a table.
-			Then add code if the DC can't be reached to try another DC and if that one can't be reached then check the table for a previously used admin credential.
-			Query first to see if there are any results for that username already in the cache table.  If not create otherwise update password.
-			*/
-			/* ON DUPLICATE KEY failed to work.  This code did too.
-			$mysqli = @new mysqli('localhost', 'kcisd', 'W!ldc@t1', 'kcisd');
-			if ($mysqli->query("SELECT COUNT(*) AS `cnt` FROM `admins` WHERE `uname`='".$_POST['uname']."';")->fetch_object()->cnt > 0) {
-				$mysqli->query("UPDATE `admins` SET `pword`='".$_POST['pword']."' WHERE `uname`='".$_POST['uname']."' LIMIT 1;")
-			} else {
-				$mysqli->query("INSERT INTO `admins` (`uname`, `pword`) VALUES ('".$_POST['uname']."', '".$_POST['pword']."');");
-			}
-			$mysqli->close();
-			*/
 		}
 		header('Location: '.BASE_URL);  // Send the user back to the main page and clean up the address bar now that we have handled the login.
 	}
