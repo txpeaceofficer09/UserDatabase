@@ -71,3 +71,7 @@ table {
 input[name=srch] {
 	font-size: 18px;
 }
+
+table, th, td {
+	font-size: 9pt;
+}
