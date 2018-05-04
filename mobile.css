@@ -1,0 +1,73 @@
+/*
+div#header, div#subheader, div#topbar {
+ display: none;
+}
+*/
+
+div#header span {
+	left: 85px;
+	top: 68px;
+}
+
+div#header h1 {
+	font-size: 28px;
+}
+
+div#header img {
+	height: 80px;
+}
+
+.firstname, .middlename, .lastname, .emailaddress, .calculatedpassword, .lunchcode, th.active, td.active, .emailid {
+	display: none;
+}
+
+.manufacturer, .model, .os, .proc, .ram, .description, .mac {
+	display: none;
+}
+
+#login_form span.psw {
+	display: block;
+	float: none;
+}
+#login_form .cancelbtn {
+	width: 100%;
+}
+
+#popup {
+	box-shadow: none;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+}
+
+table {
+	width: 100%;
+}
+
+.pagination {
+	max-width: 100%;
+	font-size: 16px;
+}
+
+#newbtn {
+	padding-left: 24px;
+	background-size: 20px 20px;
+	font-size: 18px;
+}
+
+#searchbtn {
+	background: none;
+
+	background-image: url('images/icon_magnifyingglass.gif');
+	background-repeat: no-repeat;
+	background-position: center middle;
+	background-size: 23px 23px;
+
+	height: 28px;
+	width: 28px;
+	border: none;
+	margin-right: 10px;
+}
+
+input[name=srch] {
+	font-size: 18px;
+}
