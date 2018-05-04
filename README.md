@@ -13,6 +13,7 @@ $mysqli = new mysqli('localhost', 'USERNAME', 'PASSWORD', 'DATABASE');
 ldap.inc.php:
 
 define('LDAP_USER', 'DOMAIN\ADMIN');
+
 define('LDAP_PASS', 'PASSWORD');
 
 
