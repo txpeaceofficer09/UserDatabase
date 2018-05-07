@@ -4,18 +4,17 @@
 	<head>
 		<title>Kirbyville CISD - <?php echo ($_SERVER['PHP_SELF'] == '/devices.php') ? 'Devices' : 'Users'; ?></title>
 		<link rel="stylesheet" type="text/css" href="stylesheet.css" />
-		<link rel="stylesheet" type="text/css" media="screen and (max-width: 960px)" href="mobile.css" />
-		<link rel="stylesheet" type="text/css" media="screen and (orientation: portrait)" href="mobile.css" />
+		<!--<link rel="stylesheet" type="text/css" media="screen and (max-width: 960px)" href="mobile.css" />
+		<link rel="stylesheet" type="text/css" media="screen and (orientation: portrait)" href="mobile.css" />-->
+		
+		<link rel="stylesheet" media="screen" href="stylesheet.css" />
+		<link rel="stylesheet" media="screen and (max-width: 512px) and (orientation: portrait)" href="mobile.css" />
+		<link rel="stylesheet" media="screen and (max-width: 592px) and (orientation: landscape)" href="mobile.css" />
+		<link rel="stylesheet" media="screen and (max-width: 960px) and (orientation: portrait)" href="tablet.css" />
+		<link rel="stylesheet" media="screen and (max-width: 1024px) and (orientation: landscape)" href="tablet.css" />
+		
 		<meta charset="utf-8" />
-<?php
-
- if (isMobile()) {
-	echo "\t\t<meta name=\"viewport\" content=\"width=500px, initial-scale=0.7, user-scalable=0, viewport-fit=cover\" />\n";
-} else {
-	echo "\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n";
-}
-
-?>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, viewport-fit=cover" />
 		<script src="jquery-3.2.1.min.js"></script>
 		<script src="jquery.blockUI.js"></script>
 		<script src="javascript.js"></script>

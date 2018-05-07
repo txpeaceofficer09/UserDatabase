@@ -4,7 +4,7 @@ require_once('inc/conf.inc.php');
 // require_once('inc/header.php');
 
 // Check and make sure we are still logged in.  If not stop everything and advise the user to log back in.
-if (!isset($_SESSION['uname']) && $_SERVER['PHP_SELF'] != '/login.php') die("<div id=\"error\">Your session has ended.  Please, <b><a href=\"login.php\">Login</a></b> again.</div>");
+if (!isset($_SESSION['uname']) && $_SERVER['PHP_SELF'] != '/login.php') die("<div id=\"error\">Your session has ended.  Please, <b><a href=\"".BASE_URL."login.php\">Login</a></b> again.</div>");
 
 // Define all the columns to display.
 $cols = array(
@@ -19,6 +19,7 @@ $cols = array(
 	'username'=>'Username',
 	'password'=>'Password',
 	'emailid'=>'E-Mail ID',
+	'createdon'=>'Created On',
 	//'emailaddress'=>'E-Mail Address'
 );
 
@@ -76,7 +77,7 @@ echo "\t\t\t</tr>\n";
 
 // Time to display our results.
 if ($result->num_rows == 0){
-	echo "<tr><td colspan=\"17\"><i><center>Nothing to see here.</center></i></td></tr>\n"; // We didn't get any results for our search so let's tell the user.
+	echo "<tr><td colspan=\"18\"><i><center>Nothing to see here.</center></i></td></tr>\n"; // We didn't get any results for our search so let's tell the user.
 } else {
 	// Process all the users in the search results.
 	while ($user=$result->fetch_assoc()){
@@ -100,8 +101,6 @@ if ($result->num_rows == 0){
 		// $mysqli->query("UPDATE `users` SET `emailid`='".$user['emailid']."' WHERE `id`='".$user['id']."' LIMIT 1;");
 	}
 
-	//	echo "\t\t\t\t<td>".$user['id']."</td>\n";
-	//	echo "\t\t\t\t<td>".$user['alphakey']."</td>\n";
 		echo "\t\t\t\t<td class=\"firstname\">".$user['firstname']."</td>\n";
 		echo "\t\t\t\t<td class=\"middlename\">".$user['middlename']."</td>\n";
 		echo "\t\t\t\t<td class=\"lastname\">".$user['lastname']."</td>\n";
@@ -114,11 +113,8 @@ if ($result->num_rows == 0){
 		echo "\t\t\t\t<td class=\"username\">".$user['username']."</td>\n";
 		echo "\t\t\t\t<td class=\"password\">".$user['password']."</td>\n";
 		echo "\t\t\t\t<td class=\"emailid\">".$user['emailid']."</td>\n";
-	//	echo "\t\t\t\t<td>".$user['emailpassword']."</td>\n";
-	//	echo "\t\t\t\t<td class=\"emailaddress\">".$user['emailaddress']."</td>\n";
-	//	echo "\t\t\t\t<td>".$user['createdon']."</td>\n";
-	//	echo "\t\t\t\t<td>".$user['room']."</td>\n";
-	
+		echo "\t\t\t\t<td>".$user['createdon']."</td>\n";
+
 		echo "\t\t\t</tr>\n";
 	}
 }
@@ -130,7 +126,7 @@ if ($num_results >= $resultsperpage) {
 
 	for ($i=1;$i<=ceil($num_results/$resultsperpage);$i++) {
 		if ($_GET['pg'] == $i) {
-			echo "\t\t\t".(($_GET['pg'] == $i) ? '<b>['.$i.']</b>' : $i)." \n";			
+			echo "\t\t\t".(($_GET['pg'] == $i) ? '<b>['.$i.']</b>' : $i)." \n";
 		} else {
 			echo "\t\t\t<a href=\"javascript:changeSort('".$_GET['srch']."', '".$_GET['sort']."', '".$sortdir."', ".$i.");\">".(($_GET['pg'] == $i) ? '<b>'.$i.'</b>' : $i)."</a> \n";
 		}

@@ -21,10 +21,6 @@ div#header img {
 	display: none;
 }
 
-.manufacturer, .model, .os, .proc, .ram, .description, .mac {
-	display: none;
-}
-
 #login_form span.psw {
 	display: block;
 	float: none;
@@ -68,10 +64,14 @@ table {
 	margin-right: 10px;
 }
 
+#subheader input[type=text] {
+	width: 200px;
+}
+
 input[name=srch] {
 	font-size: 18px;
 }
 
 table, th, td {
-	font-size: 9pt;
+	font-size: 8px;
 }
