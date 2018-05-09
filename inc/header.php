@@ -1,24 +1,32 @@
-<?php require_once('conf.inc.php'); ?>
+<?php
+
+/* ---------------------------------------------------------------------------------------------------------- */
+/* Filename: header.php                                                                                       */
+/* Author: James McCaughey                                                                                    */
+/* E-Mail: jmccaughey@kirbyvillecisd.org                                                                      */
+/*                                                                                                            */
+/* This file starts the html5 and includes the CSS/JS for all the pages.                                      */
+/* ---------------------------------------------------------------------------------------------------------- */
+
+require_once('conf.inc.php'); // Require the conf.inc.php file for DB, settings, functions, variables and constants.
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Kirbyville CISD - <?php echo ($_SERVER['PHP_SELF'] == '/devices.php') ? 'Devices' : 'Users'; ?></title>
-		<link rel="stylesheet" type="text/css" href="stylesheet.css" />
-		<link rel="stylesheet" type="text/css" media="screen and (max-width: 960px)" href="mobile.css" />
-		<link rel="stylesheet" type="text/css" media="screen and (orientation: portrait)" href="mobile.css" />
+		<title>Kirbyville CISD - User Database</title>
+		<link rel="stylesheet" media="screen" href="css/stylesheet.css" />
+		<link rel="stylesheet" media="screen and (max-width: 512px) and (orientation: portrait)" href="css/mobile.css" />
+		<link rel="stylesheet" media="screen and (max-width: 592px) and (orientation: landscape)" href="css/mobile.css" />
+		<link rel="stylesheet" media="screen and (max-width: 960px) and (orientation: portrait)" href="css/tablet.css" />
+		<link rel="stylesheet" media="screen and (max-width: 1024px) and (orientation: landscape)" href="css/tablet.css" />
+		
 		<meta charset="utf-8" />
-<?php
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, viewport-fit=cover" />
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/jquery.blockUI.js"></script>
+		<script src="js/javascript.js"></script>
 
- if (isMobile()) {
-	echo "\t\t<meta name=\"viewport\" content=\"width=500px, initial-scale=0.7, user-scalable=0, viewport-fit=cover\" />\n";
-} else {
-	echo "\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n";
-}
-
-?>
-		<script src="jquery-3.2.1.min.js"></script>
-		<script src="jquery.blockUI.js"></script>
-		<script src="javascript.js"></script>
 <?php
 
 if ( (SYNC_SEARCH == true && !isMobile()) || (MOBILE_SYNC_SEARCH == true && isMobile()) ) {
@@ -40,13 +48,13 @@ if ( (SYNC_SEARCH == true && !isMobile()) || (MOBILE_SYNC_SEARCH == true && isMo
 		"});\n\n" .
 		"\t\t</script>\n";
 }
-//}
 
 ?>
 	</head>
 
 <?php
 
+// If the page is the index or login page then show the header otherwise show nothing.
 if ($_SERVER['PHP_SELF'] == "/index.php" || $_SERVER['PHP_SELF'] == "/login.php") {
 	echo "\t<body onLoad=\"noFrames();".($_SERVER['PHP_SELF'] == "/index.php" ? ' doSearch();' : '')."\">\n" .
 		"\t\t<div id=\"topbar\">\n" .

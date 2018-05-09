@@ -55,7 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 $result = $mysqli->query("SELECT `position` FROM `positions` ORDER BY `position` ASC;");
 while ($row=$result->fetch_assoc()) {
-	echo "\t\t\t<option>".$row['position']."</option>\n";
+	if (!is_numeric($row['position'])) {
+		echo "\t\t\t<option>".$row['position']."</option>\n";
+	}
 }
 
 ?>
