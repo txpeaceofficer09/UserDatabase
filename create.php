@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 		$calculatedpassword = strtolower(substr($_POST['lastname'], 0, 1)).$_POST['lunchcode'];
 	} else {
 		// User is not a student or is not a student in 5th or lower.
-		$calculatedpassword = substr($_POST['firstname'], 0, 1).strtolower(substr($_POST['lastname'],0, -1)).rand(100,999);		
+		$calculatedpassword = substr($_POST['firstname'], 0, 1).strtolower(substr($_POST['lastname'],0, -1)).rand(100,999);
 	}
 	if ($_POST['middlename'] != '') {
 		$fullname = $_POST['firstname']." ".$_POST['middlename']." ".$_POST['lastname'];
@@ -19,13 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 		$fullname = $_POST['firstname']." ".$_POST['lastname'];
 	}
 	$_POST['emailid'] = str_replace(' ', '', $_POST['emailid']); // Do not allow spaces in e-mail ID.
-	
+
 	if ($_POST['password'] == '' or $_POST['password'] == '0' ) $_POST['password'] = $calculatedpassword;
 
 	if ($mysqli->query("SELECT count(*) AS `count` FROM `positions` WHERE `position` LIKE '".$_POST['position']."' LIMIT 1")->fetch_object()->count != 1) {
 		$mysqli->query("INSERT INTO `positions` (`position`) VALUES ('".$_POST['position']."');");
 	}
-	
+
 	if ($mysqli->query("INSERT INTO `users` (`firstname`, `middlename`, `lastname`, `fullname`, `position`, `lunchcode`, `username`, `password`, `calculatedpassword`, `emailid`, `emailaddress`, `createdon`, `room`, `active`) VALUES ('".$_POST['firstname']."', '".$_POST['middlename']."', '".$_POST['lastname']."', '".$fullname."', '".$_POST['position']."', '".$_POST['lunchcode']."', '".$_POST['username']."', '".$_POST['password']."', '".$calculatedpassword."', '".$_POST['emailid']."', '".$_POST['emailid']."@kirbyvillecisd.org', '".date('Y-m-d')."', '".$_POST['room']."', '".$_POST['active']."');")) {
 		// echo "Success!";
 		echo "<script>\n\nsetSearch('".$fullname."');\nhidePopup();\n\n</script>\n";
@@ -55,7 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 $result = $mysqli->query("SELECT `position` FROM `positions` ORDER BY `position` ASC;");
 while ($row=$result->fetch_assoc()) {
-	echo "\t\t\t<option>".$row['position']."</option>\n";
+	if (!is_numeric($row['position'])) {
+		echo "\t\t\t<option>".$row['position']."</option>\n";
+	}
 }
 
 ?>
@@ -87,7 +89,7 @@ while ($row=$result->fetch_assoc()) {
 	</div>
 	-->
 	<input type="hidden" name="active" value="1" />
-	
+
 	<div class="formblock"><input type="submit" value="Save" /></div>
 </form>
 

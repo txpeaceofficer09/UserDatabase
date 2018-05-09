@@ -114,7 +114,6 @@ if ($result->num_rows == 0){
 		echo "\t\t\t\t<td class=\"password\">".$user['password']."</td>\n";
 		echo "\t\t\t\t<td class=\"emailid\">".$user['emailid']."</td>\n";
 		echo "\t\t\t\t<td>".$user['createdon']."</td>\n";
-
 		echo "\t\t\t</tr>\n";
 	}
 }
