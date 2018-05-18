@@ -2,6 +2,8 @@
 
 require_once('inc/header.php');
 
+if (!isAdmin($_SESSION['uname'])) header('Location: '.BASE_URL); // A non-admin has tried to access an admin only area, send them packing.
+
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 	foreach ($_POST AS $k=>$v) {
 		$_POST[$k] = $mysqli->real_escape_string($v);
