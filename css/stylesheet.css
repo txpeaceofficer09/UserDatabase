@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Exo:700|Molle:400i');
 
+td.active, th.active, .fullname {
+	display: none;
+}
+
 .manufacturer, .description, .proc {
 	display: none;
 }
@@ -122,7 +126,7 @@ div#msg {
 #searchbtn {
 	background: none;
 
-	background-image: url('images/icon_magnifyingglass.gif');
+	background-image: url('/images/icon_magnifyingglass.gif');
 	background-repeat: no-repeat;
 	background-position: center middle;
 	background-size: 20px 20px;
@@ -232,7 +236,7 @@ span.sortarrow {
 }
 
 #newbtn {
-	background-image: url('images/user_add.png');
+	background-image: url('/images/user_add.png');
 	background-repeat: no-repeat;
 	background-position: left middle;
 	padding-left: 20px;

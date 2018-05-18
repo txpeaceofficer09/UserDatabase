@@ -36,12 +36,21 @@ foreach($_GET AS $k=>$v) {
 	$_GET[$k] = $mysqli->real_escape_string($v);
 }
 
-// Define our SQL query to get our search results.
-$sql = "SELECT * FROM `users` WHERE (`firstname` LIKE '%".$_GET['srch']."%' or `middlename` LIKE '%".$_GET['srch']."%' or `lastname` LIKE '%".$_GET['srch']."%' or `fullname` LIKE '%".$_GET['srch']."%' or `username` LIKE '%".$_GET['srch']."%' or `emailid` LIKE '%".$_GET['srch']."%' or `emailaddress` LIKE '%".$_GET['srch']."%' or `position` LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `lastname`) LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `middlename`) LIKE '%".$_GET['srch']."%') ORDER BY `".($_GET['sort'] ? $_GET['sort'] : 'fullname')."` ".$sortdir." LIMIT ".$offset.",".$resultsperpage.";";
+if (isTeacher($_SESSION['uname']) && !isAdmin($_SESSION['uname'])) {
+	// Define our SQL query to get our search results.
+	$sql = "SELECT * FROM `users` WHERE ( (`firstname` LIKE '%".$_GET['srch']."%' or `middlename` LIKE '%".$_GET['srch']."%' or `lastname` LIKE '%".$_GET['srch']."%' or `fullname` LIKE '%".$_GET['srch']."%' or `username` LIKE '%".$_GET['srch']."%' or `emailid` LIKE '%".$_GET['srch']."%' or `emailaddress` LIKE '%".$_GET['srch']."%' or `position` LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `lastname`) LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `middlename`) LIKE '%".$_GET['srch']."%') and (concat('', `position` * 1) = `position`) ) ORDER BY `".($_GET['sort'] ? $_GET['sort'] : 'fullname')."` ".$sortdir." LIMIT ".$offset.",".$resultsperpage.";";
 
-// Get the number of users who match our search query and the total number of users in the database.
-$num_results = $mysqli->query("SELECT COUNT(*) AS `count` FROM `users` WHERE `firstname` LIKE '%".$_GET['srch']."%' or `middlename` LIKE '%".$_GET['srch']."%' or `lastname` LIKE '%".$_GET['srch']."%' or `fullname` LIKE '%".$_GET['srch']."%' or `username` LIKE '%".$_GET['srch']."%' or `emailid` LIKE '%".$_GET['srch']."%' or `emailaddress` LIKE '%".$_GET['srch']."%' or `position` LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `lastname`) LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `middlename`) LIKE '%".$_GET['srch']."%';")->fetch_object()->count;
-$total_results = $mysqli->query('SELECT COUNT(*) AS `count` FROM `users`;')->fetch_object()->count;
+	// Get the number of users who match our search query and the total number of users in the database.
+	$num_results = $mysqli->query("SELECT COUNT(*) AS `count` FROM `users` WHERE ( (`firstname` LIKE '%".$_GET['srch']."%' or `middlename` LIKE '%".$_GET['srch']."%' or `lastname` LIKE '%".$_GET['srch']."%' or `fullname` LIKE '%".$_GET['srch']."%' or `username` LIKE '%".$_GET['srch']."%' or `emailid` LIKE '%".$_GET['srch']."%' or `emailaddress` LIKE '%".$_GET['srch']."%' or `position` LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `lastname`) LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `middlename`) LIKE '%".$_GET['srch']."%') and (concat('', `position` * 1) = `position`) );")->fetch_object()->count;
+	$total_results = $mysqli->query('SELECT COUNT(*) AS `count` FROM `users`;')->fetch_object()->count;
+} else {
+	// Define our SQL query to get our search results.
+	$sql = "SELECT * FROM `users` WHERE (`firstname` LIKE '%".$_GET['srch']."%' or `middlename` LIKE '%".$_GET['srch']."%' or `lastname` LIKE '%".$_GET['srch']."%' or `fullname` LIKE '%".$_GET['srch']."%' or `username` LIKE '%".$_GET['srch']."%' or `emailid` LIKE '%".$_GET['srch']."%' or `emailaddress` LIKE '%".$_GET['srch']."%' or `position` LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `lastname`) LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `middlename`) LIKE '%".$_GET['srch']."%') ORDER BY `".($_GET['sort'] ? $_GET['sort'] : 'fullname')."` ".$sortdir." LIMIT ".$offset.",".$resultsperpage.";";
+
+	// Get the number of users who match our search query and the total number of users in the database.
+	$num_results = $mysqli->query("SELECT COUNT(*) AS `count` FROM `users` WHERE `firstname` LIKE '%".$_GET['srch']."%' or `middlename` LIKE '%".$_GET['srch']."%' or `lastname` LIKE '%".$_GET['srch']."%' or `fullname` LIKE '%".$_GET['srch']."%' or `username` LIKE '%".$_GET['srch']."%' or `emailid` LIKE '%".$_GET['srch']."%' or `emailaddress` LIKE '%".$_GET['srch']."%' or `position` LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `lastname`) LIKE '%".$_GET['srch']."%' or CONCAT(`firstname`, ' ', `middlename`) LIKE '%".$_GET['srch']."%';")->fetch_object()->count;
+	$total_results = $mysqli->query('SELECT COUNT(*) AS `count` FROM `users`;')->fetch_object()->count;
+}
 
 // Execute our query and return an error if things go wrong.
 if (!$result = $mysqli->query($sql)) {
@@ -56,7 +65,7 @@ if ($num_results >= $resultsperpage) {
 
 	for ($i=1;$i<=ceil($num_results/$resultsperpage);$i++) {
 		if ($_GET['pg'] == $i) {
-			echo "\t\t\t".(($_GET['pg'] == $i) ? '<b>['.$i.']</b>' : $i)." \n";			
+			echo "\t\t\t".(($_GET['pg'] == $i) ? '<b>['.$i.']</b>' : $i)." \n";
 		} else {
 			echo "\t\t\t<a href=\"javascript:changeSort('".$_GET['srch']."', '".$_GET['sort']."', '".$sortdir."', ".$i.");\">".(($_GET['pg'] == $i) ? '<b>'.$i.'</b>' : $i)."</a> \n";
 		}
@@ -82,7 +91,7 @@ if ($result->num_rows == 0){
 	// Process all the users in the search results.
 	while ($user=$result->fetch_assoc()){
 		// echo "\t\t\t<tr ".($user['active'] ? 'class="active" ' : '')."onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\">\n"; // Setup the row and get it ready to click on.
-		echo "\t\t\t<tr ".((isAccountLocked($user['username']) == true) ? 'class="active" ' : '')."onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\">\n"; // Setup the row and get it ready to click on.
+		echo "\t\t\t<tr ".((isAccountLocked($user['username']) == true) ? 'class="active" ' : '').(isAdmin($_SESSION['uname']) ? "onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\">" : ">")."\n"; // Setup the row and get it ready to click on.
 
 		// Add the user's grade level to their position [ graduation_year (grade_level) ].
 		if (is_numeric($user['position']) && $user['position'] > date('Y')) {

@@ -91,16 +91,18 @@ function domain($domain)
 // Get a user's full name from Active Directory (LDAP).
 function getFullName($user) {
 	global $logon_server;
-	
+
 	$ds = ldap_connect($logon_server);
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 	$bd = ldap_bind($ds,LDAP_USER, LDAP_PASS);
 	$dn="OU=Campuses,DC=kcisd,DC=local";
 	$filter="samaccountname=".$user;
-	$result=ldap_search($ds,$dn,$filter, array('sn', 'givenname'));
+	// $result=ldap_search($ds,$dn,$filter, array('sn', 'givenname'));
+	$result=ldap_search($ds,LDAP_DN,$filter, array('sn', 'givenname'));
 	$entries=ldap_get_entries($ds, $result);
 	ldap_unbind($ds);
-	
+
 	return $entries[0]['givenname'][0].' '.$entries[0]['sn'][0];
 }
 
@@ -129,9 +131,11 @@ function isAdmin($user) {
 	
 	$ds = ldap_connect($logon_server);
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
 	$dn="CN=Users,DC=kcisd,DC=local";
-	$result = ldap_search($ds,$dn,"samaccountname=TechnologyDepartment");
+	// $result = ldap_search($ds,$dn,"samaccountname=TechnologyDepartment");
+	$result = ldap_search($ds, LDAP_DN, "samaccountname=".LDAP_ADMIN_GROUP);
 	$entries = ldap_get_entries($ds, $result);
 	$table = $entries[0]['member'];
 
@@ -146,9 +150,32 @@ function isAdmin($user) {
 	return $retVal;
 }
 
+function isTeacher($user) {
+	global $logon_server;
+
+	$ds = ldap_connect($logon_server);
+	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
+        $result = ldap_search($ds, LDAP_DN, "samaccountname=".LDAP_TEACHER_GROUP);
+        $entries = ldap_get_entries($ds, $result);
+        $table = $entries[0]['member'];
+
+        $retVal = false;
+
+        for ($i=0; $i < $table['count']; $i++) {
+                if ($user == substr($table[$i], strpos($table[$i], '=')+1, strpos($table[$i], ',')-(strpos($table[$i], '=')+1))) {
+                        $retVal = true;
+                        break;
+                }
+        }
+        return $retVal;
+}
+
 function isAccountLocked($user) {
 	$ds = ldap_connect('dc2.kcisd.local');
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
 	$dn="OU=Campuses,DC=kcisd,DC=local";
 	$filter="samaccountname=".$user;
@@ -179,19 +206,19 @@ function isAccountLocked($user) {
 		// "ACCOUNT_DISABLED"=>2,  // We don't need to remove this so we can evaluate it.
 		// "SCRIPT"=>1
 	);
-	
+
 	$val = (isset($entries[0])) ? $entries[0]['useraccountcontrol'][0] : 0;
-	
+
 	foreach ($bitFlags AS $k=>$v) {
 		if ($val >= $v) {
 			$val = $val - $v;
 		}
 	}
-	
+
 	// Take the bitmask field useraccountcontrol and start with the largest attribute PASSWORD_EXPIRED and loop through the values if the value is smaller than
 	// useraccountcontrol then subtract it from useraccountcontrol and move on until useraccountcontrol is 2 or 0.  If it is 2 or 3 then it is a locked account.
-	
-	return ($val >= 2) ? false : true;	
+
+	return ($val >= 2) ? false : true;
 }
 
 function isMobile() {
@@ -256,7 +283,7 @@ $sid = ( isset($_COOKIE[$sname]) ) ? session_id($_COOKIE[$sname]) : session_id()
 setcookie($sname, $sid, time()+86400, "/", ".".domain($_SERVER['SERVER_NAME']), false, true); // Set the .domain cookie so we can work across all sub-domains.
 
 // Check client IP to make sure it matches what is stored in the session.
-if ( isset($_SESSION) && isset($_SESSION['REMOTE_ADDR']) && !empty($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR'] )
+if ( isset($sname) && isset($_COOKIE[$sname]) && isset($_SESSION) && isset($_SESSION['REMOTE_ADDR']) && !empty($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR'] )
 {
 	session_destroy(); // Destroy the apparently compromised session.
 	if ( isset($_COOKIE['PHPSESSID']) ) unset($_COOKIE['PHPSESSID']); // Delete the session id cookie if it is set.
@@ -277,6 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 	$ldap = ldap_connect($logon_server);
 	// $ldap = ldap_connect('dc2.kcisd.local');
 	ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 	$domain = 'kcisd\\';
 	if ($bind = @ldap_bind($ldap, $domain.$_POST['uname'], $_POST['pword']))
 	{
@@ -290,17 +318,31 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 			$_SESSION['uname'] = $_POST['uname'];
 			$_SESSION['fullname'] = getFullName($_POST['uname']);
 			// $_SESSION['msg'] = "You have successfully logged in.";
-			
+
 			$defaults = join("",file('conf/default.php'));
-			
+
 			if (!file_exists('conf/'.strtolower($_POST['uname']).'.php')) {
 				$fp = fopen('conf/'.strtolower($_POST['uname']).'.php', 'w');
 				fputs($fp, $defaults);
 				fclose($fp);
-				
+
 				chmod('conf/'.strtolower($_POST['uname']).'.php', 0660);
 			}
-			
+
+		} elseif (isTeacher($_POST['uname'])) {
+			$_SESSION['uname'] = $_POST['uname'];
+			$_SESSION['fullname'] = getFullName($_POST['uname']);
+
+			$defaults = join("",file('conf/default.php'));
+
+			if (!file_exists('conf/'.strtolower($_POST['uname']).'.php')) {
+                                $fp = fopen('conf/'.strtolower($_POST['uname']).'.php', 'w');
+                                fputs($fp, $defaults);
+                                fclose($fp);
+
+                                chmod('conf/'.strtolower($_POST['uname']).'.php', 0660);
+                        }
+
 		}
 		header('Location: '.BASE_URL);  // Send the user back to the main page and clean up the address bar now that we have handled the login.
 	}
