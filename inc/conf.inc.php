@@ -128,19 +128,17 @@ function findLogon($arr) {
 // have no need to access the Users Database.  This restricts it to just the people that are specifically given access.
 function isAdmin($user) {
 	global $logon_server;
-	
+
 	$ds = ldap_connect($logon_server);
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
-	$dn="CN=Users,DC=kcisd,DC=local";
-	// $result = ldap_search($ds,$dn,"samaccountname=TechnologyDepartment");
 	$result = ldap_search($ds, LDAP_DN, "samaccountname=".LDAP_ADMIN_GROUP);
 	$entries = ldap_get_entries($ds, $result);
 	$table = $entries[0]['member'];
 
 	$retVal = false;
-	
+
 	for ($i=0; $i < $table['count']; $i++) {
 		if ($user == substr($table[$i], strpos($table[$i], '=')+1, strpos($table[$i], ',')-(strpos($table[$i], '=')+1))) {
 			$retVal = true;
@@ -177,9 +175,8 @@ function isAccountLocked($user) {
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
-	$dn="OU=Campuses,DC=kcisd,DC=local";
 	$filter="samaccountname=".$user;
-	$result=ldap_search($ds,$dn,$filter, array('useraccountcontrol'));
+	$result=ldap_search($ds,LDAP_DN,$filter, array('useraccountcontrol'));
 	$entries=ldap_get_entries($ds, $result);
 	ldap_unbind($ds);
 
