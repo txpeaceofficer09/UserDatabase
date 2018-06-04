@@ -58,6 +58,7 @@ if ($_SERVER['PHP_SELF'] == "/index.php" || $_SERVER['PHP_SELF'] == "/login.php"
 	echo "\t<body onLoad=\"noFrames();".($_SERVER['PHP_SELF'] == "/index.php" ? ' doSearch();' : '')."\">\n" .
 		"\t\t<div id=\"topbar\">\n" .
 		(isset($_SESSION['uname']) ? "\t\t\t<span>Welcome, ".(@$_SESSION['fullname'] ? @$_SESSION['fullname'] : @$_SESSION['uname'])."! <img src=\"images/gear_icon.png\" width=12 onClick=\"showPopup('conf.php', 360, 220);\" /> | <a href=\"?logout\">Log Out</a></span>\n" : "<span></span>") .
+		(isset($_SESSION['uname']) ? "\t\t\t<a href=\"cert.php\">Install Trust Certificate</a>" : "") .
 		"		</div>\n" .
 		"		<div id=\"header\">\n" .
 		"			<img src=\"images/Kirbyville-Logo.png\" />\n" .

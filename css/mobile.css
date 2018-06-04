@@ -41,7 +41,8 @@ table {
 #newbtn {
 	padding-left: 24px;
 	background-size: 20px 20px;
-	font-size: 18px;
+	font-size: 16px;
+	scale: 0.8;
 }
 
 #searchbtn {
@@ -50,16 +51,18 @@ table {
 	background-image: url('images/icon_magnifyingglass.gif');
 	background-repeat: no-repeat;
 	background-position: center middle;
-	background-size: 23px 23px;
+	background-size: 21px 21px;
 
-	height: 28px;
-	width: 28px;
+	height: 24px;
+	width: 24px;
 	border: none;
 	margin-right: 10px;
+	scale: 0.8;
 }
 
 input[name=srch] {
-	font-size: 18px;
+	font-size: 16px;
+	scale: 0.8;
 }
 
 table, th, td {

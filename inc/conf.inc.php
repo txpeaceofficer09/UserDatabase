@@ -233,6 +233,8 @@ function my_error_handler($num, $msg, $file, $line, $vars) {
 
 	$message = "An error occurred in script '$file' on line $line: $msg"; // Build our error message.
 
+	if (isset($_SESSION) && isset($_SESSION['uname'])) $message .= "\n\nThe error occured for ".$_SESSION['uname']."."; // Add the user who experienced the error if someone is logged in.
+
 	if ($debug) {
 		// If debug = TRUE then:
 		echo '<div class="error">'.$message.'</div>'; // Show our error message for debugging purposes.
