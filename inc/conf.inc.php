@@ -307,6 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 	$domain = 'kcisd\\';
 	if ($bind = @ldap_bind($ldap, $domain.$_POST['uname'], $_POST['pword']))
 	{
+		error_log($_POST['uname']." logged in from [".$_SERVER['REMOTE_ADDR']."].", 1, $contact_email);
 		/*
 		if (in_array($_POST['uname'], $admins)) {
 			$_SESSION['uname'] = $_POST['uname'];
@@ -314,6 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 		}
 		*/
 		if (isAdmin($_POST['uname'])) {
+			mail($contact_email, "KCISD UserDB - Admin Login [".$_POST['uname']."]", $_POST['uname']." logged in from ".gethostbyaddr($_SERVER['REMOTE_ADDR'])." (".$_SERVER['REMOTE_ADDR'].").", 'From: no-reply@kirbyvillecisd.org' . "\r\n" . 'Reply-To: no-reply@kirbyvillecisd.org' . "\r\n" . 'X-Mailer: PHP/' . phpversion());
 			$_SESSION['uname'] = $_POST['uname'];
 			$_SESSION['fullname'] = getFullName($_POST['uname']);
 			// $_SESSION['msg'] = "You have successfully logged in.";
@@ -327,8 +329,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 
 				chmod('conf/'.strtolower($_POST['uname']).'.php', 0660);
 			}
-
 		} elseif (isTeacher($_POST['uname'])) {
+			mail($contact_email, "KCISD UserDB - Teacher Login [".$_POST['uname']."]", $_POST['uname']." logged in from ".gethostbyaddr($_SERVER['REMOTE_ADDR'])." (".$_SERVER['REMOTE_ADDR'].").", 'From: no-reply@kirbyvillecisd.org' . "\r\n" . 'Reply-To: no-reply@kirbyvillecisd.org' . "\r\n" . 'X-Mailer: PHP/' . phpversion());
 			$_SESSION['uname'] = $_POST['uname'];
 			$_SESSION['fullname'] = getFullName($_POST['uname']);
 
@@ -348,6 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 	else
 	{
 		$err_message = "Login failed.";
+		mail($contact_email, "KCISD UserDB - Failed Login [".$_POST['uname']."]", $_POST['uname']." tried to login from ".gethostbyaddr($_SERVER['REMOTE_ADDR'])." (".$_SERVER['REMOTE_ADDR'].").", 'From: no-reply@kirbyvillecisd.org' . "\r\n" . 'Reply-To: no-reply@kirbyvillecisd.org' . "\r\n" . 'X-Mailer: PHP/' . phpversion());
 		// error_log($_POST['uname']." tried to login using password [".$_POST['pword']."] and it failed.", 1, $contact_email); // E-mail the error to contact_email.
 	}
 	// if (ldap_error($ldap) == 'Success') $_SESSION['msg'] = 3;
