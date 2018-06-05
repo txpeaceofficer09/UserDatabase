@@ -37,6 +37,8 @@ require_once('/var/www/ldap.inc.php'); // Get our Username/Password for LDAP.
 define('FILENAME', substr($_SERVER['PHP_SELF'], strrpos($_SERVER['PHP_SELF'], '/')));
 define('PATH', '/');
 
+define('ALLOW_TEACHER_LOGIN', false);
+
 /* -- END CONSTANTS SECTION --------------------------------------------------------------------------------- */
 
 /* -- START VARIABLES SECTION ------------------------------------------------------------------------------- */
@@ -329,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 
 				chmod('conf/'.strtolower($_POST['uname']).'.php', 0660);
 			}
-		} elseif (isTeacher($_POST['uname'])) {
+		} elseif (isTeacher($_POST['uname']) && ALLOW_TEACHER_LOGIN == true) {
 			mail($contact_email, "KCISD UserDB - Teacher Login [".$_POST['uname']."]", $_POST['uname']." logged in from ".gethostbyaddr($_SERVER['REMOTE_ADDR'])." (".$_SERVER['REMOTE_ADDR'].").", 'From: no-reply@kirbyvillecisd.org' . "\r\n" . 'Reply-To: no-reply@kirbyvillecisd.org' . "\r\n" . 'X-Mailer: PHP/' . phpversion());
 			$_SESSION['uname'] = $_POST['uname'];
 			$_SESSION['fullname'] = getFullName($_POST['uname']);
