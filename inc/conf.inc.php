@@ -37,7 +37,7 @@ require_once('/var/www/ldap.inc.php'); // Get our Username/Password for LDAP.
 define('FILENAME', substr($_SERVER['PHP_SELF'], strrpos($_SERVER['PHP_SELF'], '/')));
 define('PATH', '/');
 
-define('ALLOW_TEACHER_LOGIN', false);
+define('ALLOW_TEACHER_LOGIN', false); // Decide whether or not to allow teachers any access to the program.
 
 /* -- END CONSTANTS SECTION --------------------------------------------------------------------------------- */
 
@@ -45,7 +45,7 @@ define('ALLOW_TEACHER_LOGIN', false);
 /*  Define a few variables we will need in our program.                                                       */
 /* ---------------------------------------------------------------------------------------------------------- */
 
-$ldap_servers = array('dc2', 'kcisd-dc2', 'kcisd-dc3'); // List of our logon servers.
+$ldap_servers = array('kcisd-dc2', 'kcisd-dc3'); // List of our logon servers.
 $logon_server = findLogon($ldap_servers); // Pick the logon server we will use.
 
 $sname = session_name(); // Get the name of the session cookie.
@@ -173,7 +173,9 @@ function isTeacher($user) {
 }
 
 function isAccountLocked($user) {
-	$ds = ldap_connect('dc2.kcisd.local');
+	global $logon_server;
+
+	$ds = ldap_connect($logon_server);
 	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
 	$bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
@@ -309,7 +311,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['uname']) && isset($_PO
 	$domain = 'kcisd\\';
 	if ($bind = @ldap_bind($ldap, $domain.$_POST['uname'], $_POST['pword']))
 	{
-		error_log($_POST['uname']." logged in from [".$_SERVER['REMOTE_ADDR']."].", 1, $contact_email);
 		/*
 		if (in_array($_POST['uname'], $admins)) {
 			$_SESSION['uname'] = $_POST['uname'];
