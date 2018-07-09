@@ -68,6 +68,8 @@ if ($_SERVER['PHP_SELF'] == "/index.php" || $_SERVER['PHP_SELF'] == "/login.php"
 		"\t\t<div id=\"subheader\">\n" .
 		(isset($_SESSION['uname']) ? "\t\t\t<span><input type=\"text\" name=\"srch\" placeholder=\"Search\"".(isset($_GET['srch']) ? ' value="'.$_GET['srch'].'"' : '')." /> <input type=\"button\" id=\"searchbtn\" onClick=\"doSearch();\" value=\" \" /></span>\n" .
 		(isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"New\" id=\"newbtn\" type=\"button\" onClick=\"showPopup('create.php', 340, 350);\" />\n" : "") : "") .
+		(isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"PDF\" id=\"massPDF\" type=\"button\" onClick=\"massPDF();\" />\n" : "") .
+		(isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"Delete\" id=\"delbtn\" type=\"button\" onClick=\"delusers();\" />\n" : "") .
 		"\t\t</div>\n\n" .
 		"\t\t<div id=\"popup\">\n" .
 		"\t\t\t<div id=\"titlebar\"><button onClick=\"hidePopup();\">X</button>Popup Window</div>\n" .

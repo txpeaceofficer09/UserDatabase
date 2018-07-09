@@ -243,6 +243,22 @@ span.sortarrow {
 	background-size: 16px 16px;
 }
 
+#massPDF {
+	background-image: url('/images/massPDF.png');
+	background-repeat: no-repeat;
+	background-position: left middle;
+	padding-left: 20px;
+	background-size: 16px 16px;
+}
+
+#delbtn {
+	background-image: url('/images/user_del.png');
+	background-repeat: no-repeat;
+	background-position: left middle;
+	padding-left: 20px;
+	background-size: 16px 16px;	
+}
+
 #login_form {
 	border: 3px solid #a1a1a1;
 	margin: 20px auto;

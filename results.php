@@ -74,9 +74,11 @@ if ($num_results >= $resultsperpage) {
 	echo "\t\t</div>\n";
 }
 
+// echo "<form action=\"masspdf.php\"><div><input type=\"submit\" onClick=\"this.submit();\" value=\"Mass PDF\" /></div>\n";
+
 // Start our table to display our results.
 echo "\n\t\t<table>\n\t\t\t<tr>\n";
-
+echo "<th class=\"chkbox\"></th>";
 // Display our column headers we defined earlier.
 foreach($cols as $key => $val) {
 	echo "<th class=\"".$key."\" onClick=\"changeSort('".$_GET['srch']."', '".$key."', '".($sortdir == 'DESC' ? 'ASC' : 'DESC')."', ".($_GET['pg'] ? $_GET['pg'] : 1).");\">".($_GET['sort'] == $key ? $sortarrow : '<span class="sortarrow">&nbsp;</span>').$val."</th>";
@@ -86,12 +88,12 @@ echo "\t\t\t</tr>\n";
 
 // Time to display our results.
 if ($result->num_rows == 0){
-	echo "<tr><td colspan=\"18\"><i><center>Nothing to see here.</center></i></td></tr>\n"; // We didn't get any results for our search so let's tell the user.
+	echo "<tr><td colspan=\"19\"><i><center>Nothing to see here.</center></i></td></tr>\n"; // We didn't get any results for our search so let's tell the user.
 } else {
 	// Process all the users in the search results.
 	while ($user=$result->fetch_assoc()){
 		// echo "\t\t\t<tr ".($user['active'] ? 'class="active" ' : '')."onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\">\n"; // Setup the row and get it ready to click on.
-		echo "\t\t\t<tr ".((isAccountLocked($user['username']) == true) ? 'class="active" ' : '').(isAdmin($_SESSION['uname']) ? "onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\">" : ">")."\n"; // Setup the row and get it ready to click on.
+		echo "\t\t\t<tr ".((isAccountLocked($user['username']) == true) ? 'class="active" ' : '').">\n"; // Setup the row and get it ready to click on.
 
 		// Add the user's grade level to their position [ graduation_year (grade_level) ].
 		if (is_numeric($user['position']) && $user['position'] > date('Y')) {
@@ -109,24 +111,25 @@ if ($result->num_rows == 0){
 		$user['emailid'] = substr($user['emailaddress'], 0, strpos($user['emailaddress'], '@'));
 		// $mysqli->query("UPDATE `users` SET `emailid`='".$user['emailid']."' WHERE `id`='".$user['id']."' LIMIT 1;");
 	}
-
-		echo "\t\t\t\t<td class=\"firstname\">".$user['firstname']."</td>\n";
-		echo "\t\t\t\t<td class=\"middlename\">".$user['middlename']."</td>\n";
-		echo "\t\t\t\t<td class=\"lastname\">".$user['lastname']."</td>\n";
-		echo "\t\t\t\t<td class=\"fullname\">".$user['fullname']."</td>\n";
-		echo "\t\t\t\t<td class=\"position\">".$userpos."</td>\n";
-		echo "\t\t\t\t<td class=\"lunchcode\">".($user['lunchcode'] ? str_pad($user['lunchcode'], 4, '0', STR_PAD_LEFT) : '')."</td>\n";
-	//	echo "\t\t\t\t<td class=\"active\">".($user['active'] ? '<b>Yes</b>' : 'No').((isAccountLocked($user['username']) == true) ? "+" : "-")."</td>\n";
-		echo "\t\t\t\t<td class=\"active\">".((isAccountLocked($user['username']) == true) ? '<b>Yes</b>' : 'No')."</td>\n";
-		echo "\t\t\t\t<td class=\"calculatedpassword\">".$user['calculatedpassword']."</td>\n";
-		echo "\t\t\t\t<td class=\"username\">".$user['username']."</td>\n";
-		echo "\t\t\t\t<td class=\"password\">".$user['password']."</td>\n";
-		echo "\t\t\t\t<td class=\"emailid\">".$user['emailid']."</td>\n";
-		echo "\t\t\t\t<td class=\"createdon\">".$user['createdon']."</td>\n";
+		echo "\t\t\t\t<td class=\"chkbox\"><input type=\"checkbox\" name=\"".$user['id']."\" /></td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"firstname\">".$user['firstname']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"middlename\">".$user['middlename']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"lastname\">".$user['lastname']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"fullname\">".$user['fullname']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"position\">".$userpos."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"lunchcode\">".($user['lunchcode'] ? str_pad($user['lunchcode'], 4, '0', STR_PAD_LEFT) : '')."</td>\n";
+	//	echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"active\">".($user['active'] ? '<b>Yes</b>' : 'No').((isAccountLocked($user['username']) == true) ? "+" : "-")."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"active\">".((isAccountLocked($user['username']) == true) ? '<b>Yes</b>' : 'No')."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"calculatedpassword\">".$user['calculatedpassword']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"username\">".$user['username']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"password\">".$user['password']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"emailid\">".$user['emailid']."</td>\n";
+		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"createdon\">".$user['createdon']."</td>\n";
 		echo "\t\t\t</tr>\n";
 	}
 }
 echo "\t\t</table>\n";
+// echo "</form>\n";
 
 // Time to do the pagination at the bottom.
 if ($num_results >= $resultsperpage) {

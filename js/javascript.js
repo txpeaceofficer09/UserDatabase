@@ -151,3 +151,19 @@ function handle_mousedown(e){
     .on('mousemove', handle_dragging);
 }
 $('#popup').mousedown(handle_mousedown);
+
+function massPDF(){
+	var url = '';
+	url = $("input[type=checkbox]").map(function() {
+		if (this.checked == true) return this.name;
+	}).get().join(",");
+	showPopup('pdf.php?id='+url, 800, 600);
+}
+
+function delusers() {
+	var url = '';
+	url = $("input[type=checkbox]").map(function() {
+		if (this.checked == true) return this.name;
+	}).get().join(",");
+	showPopup('delete.php?id='+url, 300, 125);
+}

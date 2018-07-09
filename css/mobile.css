@@ -11,7 +11,7 @@ div#header img {
 	height: 80px;
 }
 
-.firstname, .middlename, .lastname, .emailaddress, .calculatedpassword, .lunchcode, th.active, td.active, .emailid, .createdon {
+.firstname, .middlename, .lastname, .emailaddress, .calculatedpassword, .lunchcode, th.active, td.active, .emailid, .createdon, .chkbox {
 	display: none;
 }
 

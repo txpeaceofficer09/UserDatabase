@@ -222,6 +222,60 @@ function isAccountLocked($user) {
 	return ($val >= 2) ? false : true;
 }
 
+function procBitFlag($user, $srchVal) {
+	$retArr = [];
+
+        global $logon_server;
+
+        $ds = ldap_connect($logon_server);
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+        $bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
+        $filter="samaccountname=".$user;
+        $result=ldap_search($ds,LDAP_DN,$filter, array('useraccountcontrol'));
+        $entries=ldap_get_entries($ds, $result);
+        ldap_unbind($ds);
+
+        $bitFlags = array(
+                "TRUSTED_TO_AUTH_FOR_DELEGATION"=>16777216,
+                "PASSWORD_EXPIRED"=>8388608,
+                "DONT_REQ_PREAUTH"=>4194304,
+                "USE_DES_KEY_ONLY"=>2097152,
+                "NOT_DELEGATED"=>1048576,
+                "TRUSTED_FOR_DELEGATION"=>524288,
+                "SMARTCARD_REQUIRED"=>262144,
+                "MNS_LOGON_ACCOUNT"=>131072,
+                "DONT_EXPIRE_PASSWORD"=>65536,
+                "SERVER_TRUST_ACCOUNT"=>8192,
+                "WORKSTATION_TRUST_ACCOUNT"=>4096,
+                "INTERDOMAIN_TRUST_ACCOUNT"=>2048,
+                "NORMAL_ACCOUNT"=>512,
+                "TEMP_DUPLICATE_ACCOUNT"=>256,
+                "ENCRYPTED_TEXT_PWD_ALLOWED"=>128,
+                "PASSWD_CANT_CHANGE"=>64,
+                "PASSWD_NOTREQD"=>32,
+                "LOCKOUT"=>16,
+                "HOMEDIR_REQUIRED"=>8,
+                "ACCOUNT_DISABLED"=>2,
+                "SCRIPT"=>1
+        );
+
+        $val = (isset($entries[0])) ? $entries[0]['useraccountcontrol'][0] : 0;
+
+        foreach ($bitFlags AS $k=>$v) {
+                if ($val >= $v) {
+			$val = $val - $v;
+			$retArr[$k] = true;
+                } else {
+			$retArr[$k] = false;
+		}
+        }
+
+        // return ($val >= 2) ? false : true;
+		return $retArr[$srchVal];
+}
+
+
 function isMobile() {
     return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
 }
