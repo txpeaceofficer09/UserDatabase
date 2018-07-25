@@ -12,10 +12,26 @@ if (isset($_GET['id'])) {
 	$ids = explode(',', $_GET['id']);
 }
 
+$users = [];
+
+foreach ($ids AS $id) {
+	$users[$id] = $mysqli->query('SELECT `username` FROM `users` WHERE `id`="'.$id.'" LIMIT 1;')->fetch_object()->username;
+}
+
 if (isset($_GET['sure'])) {
+	putenv('LDAPTLS_REQCERT=allow');
+        $ds = ldap_connect($logon_server);
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+	ldap_start_tls($ds);
+        $bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
+
 	foreach ($ids AS $id) {
-		if ($mysqli->query("DELETE FROM `users` WHERE `id`='".$id."';")) {
-			$count++;
+		if ($id != '') {
+			if ($mysqli->query("DELETE FROM `users` WHERE `id`='".$id."';")) {
+				ldap_delete($ds, getUserDN($users[$id]));
+				$count++;
+			}
 		}
 	}
 
@@ -23,8 +39,10 @@ if (isset($_GET['sure'])) {
 		echo "<b>".$count."</b> user(s) deleted.\n";
 	} else {
 		echo "Errno: ".$mysqli->errno."\n";
-		echo "Error: ".$mysqli->error."\n";		
+		echo "Error: ".$mysqli->error."\n";
 	}
+
+	ldap_unbind($ds);
 } else {
 	echo "<p><center>Are you sure you want to delete <b>".count($ids)."</b> user(s)?</center></p>\n";
 	echo "<center><input type=\"button\" value=\"Yes\" onClick=\"showPopup('delete.php?id=".$_GET['id']."&sure=true', 300, 125);\" /> <input type=\"button\" value=\"No\" onClick=\"hidePopup();\" /></center>\n";

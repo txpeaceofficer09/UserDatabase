@@ -10,21 +10,26 @@
 
 require_once('conf.inc.php'); // Require the conf.inc.php file for DB, settings, functions, variables and constants.
 
+// For performance sake eventually need to switch to adding version number instead of a microtime stamp for cache-busting.
+// $version = '1.0.0';
+
+$version = number_format(microtime(true), 0, '', '');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Kirbyville CISD - User Database</title>
-		<link rel="stylesheet" media="screen" href="css/stylesheet.css" />
-		<link rel="stylesheet" media="screen and (max-width: 512px) and (orientation: portrait)" href="css/mobile.css" />
-		<link rel="stylesheet" media="screen and (max-width: 592px) and (orientation: landscape)" href="css/mobile.css" />
-		<link rel="stylesheet" media="screen and (max-width: 960px) and (orientation: portrait)" href="css/tablet.css" />
-		<link rel="stylesheet" media="screen and (max-width: 1024px) and (orientation: landscape)" href="css/tablet.css" />
+		<link rel="stylesheet" media="screen" href="css/stylesheet.css?v=<?php echo $version; ?>" />
+		<link rel="stylesheet" media="screen and (max-width: 512px) and (orientation: portrait)" href="css/mobile.css?v=<?php echo $version; ?>" />
+		<link rel="stylesheet" media="screen and (max-width: 592px) and (orientation: landscape)" href="css/mobile.css?v=<?php echo $version; ?>" />
+		<link rel="stylesheet" media="screen and (max-width: 960px) and (orientation: portrait)" href="css/tablet.css?v=<?php echo $version; ?>" />
+		<link rel="stylesheet" media="screen and (max-width: 1024px) and (orientation: landscape)" href="css/tablet.css?v=<?php echo $version; ?>" />
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, viewport-fit=cover" />
-		<script src="js/jquery-3.2.1.min.js"></script>
-		<script src="js/jquery.blockUI.js"></script>
-		<script src="js/javascript.js"></script>
+		<script src="js/jquery-3.2.1.min.js?v=<?php echo $version; ?>"></script>
+		<script src="js/jquery.blockUI.js?v=<?php echo $version; ?>"></script>
+		<script src="js/javascript.js?v=<?php echo $version; ?>"></script>
 
 <?php
 
@@ -67,9 +72,10 @@ if ($_SERVER['PHP_SELF'] == "/index.php" || $_SERVER['PHP_SELF'] == "/login.php"
 		"		</div>\n" .
 		"\t\t<div id=\"subheader\">\n" .
 		(isset($_SESSION['uname']) ? "\t\t\t<span><input type=\"text\" name=\"srch\" placeholder=\"Search\"".(isset($_GET['srch']) ? ' value="'.$_GET['srch'].'"' : '')." /> <input type=\"button\" id=\"searchbtn\" onClick=\"doSearch();\" value=\" \" /></span>\n" .
-		(isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"New\" id=\"newbtn\" type=\"button\" onClick=\"showPopup('create.php', 340, 350);\" />\n" : "") : "") .
-		(isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"PDF\" id=\"massPDF\" type=\"button\" onClick=\"massPDF();\" />\n" : "") .
-		(isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"Delete\" id=\"delbtn\" type=\"button\" onClick=\"delusers();\" />\n" : "") .
+		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"New\" id=\"newbtn\" type=\"button\" onClick=\"showPopup('create.php', 340, 350);\" />\n" : "") : "") .
+		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"PDF\" id=\"massPDF\" type=\"button\" onClick=\"massPDF();\" />\n" : "") .
+		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"Delete\" id=\"delbtn\" type=\"button\" onClick=\"delusers();\" />\n" : "") .
+		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<!--<input value=\"Reset Password\" id=\"resetPass\" type=\"button\" onClick=\"resetPassword();\" />-->\n" : "") .
 		"\t\t</div>\n\n" .
 		"\t\t<div id=\"popup\">\n" .
 		"\t\t\t<div id=\"titlebar\"><button onClick=\"hidePopup();\">X</button>Popup Window</div>\n" .

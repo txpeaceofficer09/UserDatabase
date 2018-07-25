@@ -10,14 +10,25 @@ if (isset($_GET['id'])) {
 }
 
 foreach ($ids AS $id) {
-	$result = $mysqli->query("SELECT * FROM `users` WHERE `id`='".@$id."' LIMIT 1;");
-	$user = $result->fetch_assoc();
+	if ($id != '') {
+		$result = $mysqli->query("SELECT * FROM `users` WHERE `id`='".@$id."' LIMIT 1;");
+		$user = $result->fetch_assoc();
 
-	array_push($users, $user);
+		array_push($users, $user);
 
-	$result->free();
+		$result->free();
+	}
 }
 $mysqli->close();
+
+function cmp($a, $b) {
+        if ($a['lastname'] == $b['lastname']) {
+                return 0;
+        }
+        return ($a['lastname'] < $b['lastname']) ? -1 : 1;
+}
+
+usort($users, "cmp");
 
 $pdf = new FPDF('P', 'mm', 'Letter');
 

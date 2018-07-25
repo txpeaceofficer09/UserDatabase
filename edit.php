@@ -13,10 +13,29 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 	} else {
 		$query = "UPDATE `users` SET `alphakey`='".$_POST['alphakey']."', `firstname`='".$_POST['firstname']."', `middlename`='".$_POST['middlename']."', `lastname`='".$_POST['lastname']."', `fullname`='".$_POST['fullname']."', `position`='".$_POST['position']."', `lunchcode`='".$_POST['lunchcode']."', `username`='".$_POST['username']."', `password`='".$_POST['password']."', `emailid`='".$_POST['emailid']."', `emailpassword`='".$_POST['emailpassword']."', `emailaddress`='".$_POST['emailaddress']."', `room`='".$_POST['room']."', `active`='".$_POST['active']."' WHERE `id`='".$_GET['id']."';";
 	}
+
+	putenv('LDAPTLS_REQCERT=allow');
+        $ds = ldap_connect($logon_server);
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+	ldap_start_tls($ds);
+        $bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
+
+	// $newpassword = "\"".$_POST['password']."\"";
+	// $len =strlen($newpassword);
+	// for ($i=0;$i<$len;$i++) $newpass .= "{$newpassword{$i}}\000";
+
+	$newpass = iconv("UTF-8", "UTF-16LE", '"' . $_POST['password'] . '"');
+	$userDn = getUserDN($_POST['username']);
+
+	if (!ldap_modify($ds, $userDn, array('unicodePwd'=>$newpass))) {
+		echo "LDAP Error: ".ldap_error($ds);
+	}
+
+        ldap_unbind($ds);
+
 	if ($mysqli->query($query)) {
-		// echo "Success!\n";
 		echo "<script>\n\nsetSearch('".$_POST['fullname']."');\nhidePopup();\n\n</script>\n";
-		// echo "<script>\n\nsetSearch('".$_POST['emailid']."');\nhidePopup();\n\n</script>\n";
 	} else {
 		// echo "Failed!\n";
 		echo "Errno: ".$mysqli->errno."\n" .
@@ -100,10 +119,9 @@ if ( (isset($userpos) && $userpos > 5 && strlen($user['calculatedpassword']) == 
 	</div>
 	-->
 	<input type="hidden" name="active" value="<?php echo $user['active']; ?>" />
-	
+
 	<div class="formblock">
-		<input type="submit" value="Save" /> 
-		<!--<input type="button" value="PDF" onClick="window.open('pdf.php?id=<?php echo $user['id']; ?>');" />--> 
+		<input type="submit" value="Save" />
 		<input type="button" value="PDF" onClick="showPopup('pdf.php?id=<?php echo $user['id']; ?>', 800, 600);" />
 		<input value="Delete" type="button" onClick="showPopup('delete.php?id=<?php echo $user['id']; ?>', 300, 200);" />
 	</div>

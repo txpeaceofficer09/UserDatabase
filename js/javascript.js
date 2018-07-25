@@ -1,4 +1,6 @@
 function changeSort(srch, sortid, sortdir, pg) {
+	/* $.blockUI({ message: '<h1 style="white-space: nowrap; min-width: 40%;"><img src="images/busy.gif" />Just a moment...</h1>' }); */
+
     $.get("results.php?srch=" + srch + "&sort=" + sortid + "&sortdir=" + sortdir + "&pg=" + pg, function(data, status){
 		$("section").html(data);
 	});
@@ -15,11 +17,11 @@ function setSearch(srch) {
 
 function doSearch() {
 	$.blockUI({ message: '<h1 style="white-space: nowrap; min-width: 40%;"><img src="images/busy.gif" />Just a moment...</h1>' });
-	
+
 	var srch;
 	if (self !== top) {
 		srch = encodeURI($("[name=srch]", window.parent.document).val());
-		
+
 		$.get("results.php?srch=" + srch, function(data, status){
 			$("section", window.parent.document).html(data);
 			if (status == 'success') {
@@ -34,7 +36,6 @@ function doSearch() {
 	} else {
 		srch = $("[name=srch]").val();
 
-		
 		$.get("results.php?srch=" + srch, function(data, status){
 			$("section").html(data);
 			if (status == 'success') {
@@ -72,9 +73,9 @@ function changeMenuImages() {
 function showPopup(url, x, y) {
 	if (self !== top) {
 		$("#popupframe", window.parent.document).attr("src", "");
-	
+
 		var left = Math.max(0, (($(window.parent).width()/2)-(x / 2)) + $(window.parent).scrollLeft());
-		var top = Math.max(0, (($(window.parent).height()/2)-(y / 2)) + $(window.parent).scrollTop());			
+		var top = Math.max(0, (($(window.parent).height()/2)-(y / 2)) + $(window.parent).scrollTop());
 
 		if ( x > $(window.parent).width() ) {
 				left = 0;
@@ -85,7 +86,7 @@ function showPopup(url, x, y) {
 			top = 0;
 			y = $(window.parent).height();
 		}
-		
+
 		$("#popupframe", window.parent.document).attr("src", url);
 
 		$("#popup", window.parent.document).css("top", top + 'px');
@@ -111,7 +112,7 @@ function showPopup(url, x, y) {
 		}
 
 		$("#popupframe").attr("src", url);
-	
+
 		$("#popup").css("top", top + 'px');
 		$("#popup").css("left", left + 'px');
 		$("#popup").css("width", x + 'px');
@@ -125,7 +126,7 @@ function hidePopup() {
 	if (self !== top) {
 		$("#popup", window.parent.document).css("display", "none");
 	} else {
-		$("#popup").css("display", "none");		
+		$("#popup").css("display", "none");
 	}
 }
 
@@ -166,4 +167,13 @@ function delusers() {
 		if (this.checked == true) return this.name;
 	}).get().join(",");
 	showPopup('delete.php?id='+url, 300, 125);
+}
+
+function resetPassword() {
+	var url = '';
+	url = $("input[type=checkbox]").map(function() {
+		if (this.checked == true) return this.name;
+	}).get().join(",");
+	showPopup('passreset.php?id='+url, 300, 125);
+	console.log('passreset.php?id='+url);
 }

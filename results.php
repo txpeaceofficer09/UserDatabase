@@ -78,7 +78,7 @@ if ($num_results >= $resultsperpage) {
 
 // Start our table to display our results.
 echo "\n\t\t<table>\n\t\t\t<tr>\n";
-echo "<th class=\"chkbox\"></th>";
+echo "<th class=\"chkbox\"><input type=\"checkbox\" onClick=\"$(':checkbox').prop('checked', this.checked);\" /></th>";
 // Display our column headers we defined earlier.
 foreach($cols as $key => $val) {
 	echo "<th class=\"".$key."\" onClick=\"changeSort('".$_GET['srch']."', '".$key."', '".($sortdir == 'DESC' ? 'ASC' : 'DESC')."', ".($_GET['pg'] ? $_GET['pg'] : 1).");\">".($_GET['sort'] == $key ? $sortarrow : '<span class="sortarrow">&nbsp;</span>').$val."</th>";
@@ -93,7 +93,8 @@ if ($result->num_rows == 0){
 	// Process all the users in the search results.
 	while ($user=$result->fetch_assoc()){
 		// echo "\t\t\t<tr ".($user['active'] ? 'class="active" ' : '')."onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\">\n"; // Setup the row and get it ready to click on.
-		echo "\t\t\t<tr ".((isAccountLocked($user['username']) == true) ? 'class="active" ' : '').">\n"; // Setup the row and get it ready to click on.
+		echo "\t\t\t<tr".((isAccountLocked($user['username']) == true) ? ' class="active"' : '').">\n"; // Setup the row and show active or inactive.
+		// echo "\t\t\t<tr".(($user['active'] == 1) ? ' class="active"' : '').">\n";
 
 		// Add the user's grade level to their position [ graduation_year (grade_level) ].
 		if (is_numeric($user['position']) && $user['position'] > date('Y')) {
@@ -107,10 +108,19 @@ if ($result->num_rows == 0){
 			$userpos = $user['position'];
 		}
 
-	if ($user['emailid'] == '') {
-		$user['emailid'] = substr($user['emailaddress'], 0, strpos($user['emailaddress'], '@'));
-		// $mysqli->query("UPDATE `users` SET `emailid`='".$user['emailid']."' WHERE `id`='".$user['id']."' LIMIT 1;");
-	}
+		if ($user['emailid'] == '') {
+			$user['emailid'] = substr($user['emailaddress'], 0, strpos($user['emailaddress'], '@'));
+			// $mysqli->query("UPDATE `users` SET `emailid`='".$user['emailid']."' WHERE `id`='".$user['id']."' LIMIT 1;");
+		}
+	
+		if (preg_match('/^([a-z][0-9]{4,4})$/i', $user['password']) && $grade >= 6) {
+			// Recalculate elementary password to upper-grade password.
+			$newPass = calcPass($user['position'], $user['firstname'], $user['lastname'], $user['lunchcode']);
+			$mysqli->query("UPDATE `users` SET `password`='".$newPass."', `calculatedpassword`='".$newPass."' WHERE `id`='".$user['id']."';");
+			$user['password'] = $newPass;
+			$user['calculatedpassword'] = $newPass;
+		}
+	
 		echo "\t\t\t\t<td class=\"chkbox\"><input type=\"checkbox\" name=\"".$user['id']."\" /></td>\n";
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"firstname\">".$user['firstname']."</td>\n";
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"middlename\">".$user['middlename']."</td>\n";
@@ -120,6 +130,7 @@ if ($result->num_rows == 0){
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"lunchcode\">".($user['lunchcode'] ? str_pad($user['lunchcode'], 4, '0', STR_PAD_LEFT) : '')."</td>\n";
 	//	echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"active\">".($user['active'] ? '<b>Yes</b>' : 'No').((isAccountLocked($user['username']) == true) ? "+" : "-")."</td>\n";
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"active\">".((isAccountLocked($user['username']) == true) ? '<b>Yes</b>' : 'No')."</td>\n";
+		// echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"active\">".(($user['active'] == 1) ? '<b>Yes</b>' : 'No')."</td>\n";
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"calculatedpassword\">".$user['calculatedpassword']."</td>\n";
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"username\">".$user['username']."</td>\n";
 		echo "\t\t\t\t<td".(isAdmin($_SESSION['uname']) ? " onClick=\"showPopup('edit.php?id=".$user['id']."', 360, 480);\" " : " ")."class=\"password\">".$user['password']."</td>\n";
@@ -155,6 +166,20 @@ printf("<b>%s</b> users in database.", number_format($total_results));
 echo "\t\t</footer>\n";
 
 // require_once('inc/footer.php');
+
+// List our active users who are currently using the application.
+if ( (SHOW_LOGGED_ON_USERS == true && !isMobile()) || (MOBILE_SHOW_LOGGED_ON_USERS == true && isMobile()) ) {
+        $result = $mysqli->query("SELECT `name` FROM `active_users` WHERE `date` > date_sub(now(), interval 5 minute);");
+        while ($row=$result->fetch_assoc()) {
+                if (!isset($active_users)) {
+                        $active_users = '<a href="mailto:'.$row['name'].'@kirbyvillecisd.org">'.$row['name'].'</a>';
+                } else {
+                        $active_users .= ', <a href="mailto:'.$row['name'].'@kirbyvillecisd.org">'.$row['name'].'</a>';
+                }
+        }
+
+        echo "\t\t<footer><h3>Active Users:</h3>".( isset($active_users) ? $active_users : "<i>No Active Users</i>")."</footer>\n";
+}
 
 if (isset($mysqli)) $mysqli->close();
 

@@ -14,7 +14,7 @@
 /* ---------------------------------------------------------------------------------------------------------- */
 
 // ini_set('display_errors', '1'); // Display errors on the page.
-set_time_limit(10);
+// set_time_limit(10);
 
 ob_start(); // Start output buffering.
 
@@ -54,6 +54,41 @@ $debug = FALSE;
 $contact_email = 'jmccaughey@kirbyvillecisd.org';
 
 $page_title = 'Kirbyville CISD - User Database';
+
+/*
+$user_templates = array(
+	'tech'=>array(
+		'memberof'=>array(
+			'CN=Web,OU=Groups,OU=Campuses,DC=kcisd,DC=local',
+			'CN=TechnologyDepartment,CN=Users,DC=kcisd,DC=local',
+			'CN=AllCameras,OU=Groups,OU=Administration,OU=Campuses,DC=kcisd,DC=local',
+			'CN=technology,OU=Users,OU=Technology,OU=Campuses,DC=kcisd,DC=local',
+			'CN=AdminXeroxPrinter,OU=Groups,OU=Administration,OU=Campuses,DC=kcisd,DC=local',
+			'CN=EmployeeInternet,OU=Filter Groups,DC=kcisd,DC=local',
+			'CN=Skyward Users,OU=Groups,OU=Administration,OU=Campuses,DC=kcisd,DC=local',
+			'CN=Social Media,OU=Groups,OU=Campuses,DC=kcisd,DC=local',
+			'CN=Techs,OU=Groups,OU=Technology,OU=Campuses,DC=kcisd,DC=local',
+			'CN=Remote Desktop Users,CN=Builtin,DC=kcisd,DC=local',
+			'CN=Schema Admins,CN=Users,DC=kcisd,DC=local,'
+			'CN=Enterprise Admins,CN=Users,DC=kcisd,DC=local',
+			'CN=Domain Admins,CN=Users,DC=kcisd,DC=local',
+		),
+		'homedrive'=>'H:',
+	),
+	'teacher'=>array(
+		'memberof'=>array(
+
+		),
+		'homedrive'=>'H:',
+	),
+	'student'=>array(
+		'memberof'=>array(
+
+		),
+		'homedrive'=>'H:',
+	),
+);
+*/
 
 /* -- END VARIABLES SECTION --------------------------------------------------------------------------------- */
 
@@ -106,6 +141,31 @@ function getFullName($user) {
 	ldap_unbind($ds);
 
 	return $entries[0]['givenname'][0].' '.$entries[0]['sn'][0];
+}
+
+function getUserDN($user) {
+	global $logon_server, $contact_email;
+
+	$ds = ldap_connect($logon_server);
+	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+	$bd = ldap_bind($ds,LDAP_USER, LDAP_PASS);
+	$dn="OU=Campuses,DC=kcisd,DC=local";
+	$filter="samaccountname=".$user;
+	// $result=ldap_search($ds,$dn,$filter, array('sn', 'givenname'));
+	$result=ldap_search($ds,LDAP_DN,$filter, array('sn', 'givenname'));
+	$entries=ldap_get_entries($ds, $result);
+	ldap_unbind($ds);
+
+
+	if (isset($entries[0]) && isset($entries[0]['dn'])) {
+		return $entries[0]['dn'];
+	} else {
+		error_log(join('\n', $entries), 1, $contact_email);
+		return '';
+	}
+
+	// return $entries[0]['dn'];
 }
 
 // Find an available logon server.
@@ -170,6 +230,21 @@ function isTeacher($user) {
                 }
         }
         return $retVal;
+}
+
+function getADUser($username) {
+	global $logon_server;
+
+	$ds = ldap_connect($logon_server);
+	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+	$bd = ldap_bind($ds,LDAP_USER, LDAP_PASS);
+	$filter="samaccountname=".$username;
+	$result=ldap_search($ds,LDAP_DN,$filter);
+	$entries=ldap_get_entries($ds, $result);
+	ldap_unbind($ds);
+
+	return $entries;
 }
 
 function isAccountLocked($user) {
@@ -275,6 +350,16 @@ function procBitFlag($user, $srchVal) {
 		return $retArr[$srchVal];
 }
 
+function calcPass($year, $firstname, $lastname, $lunchcode) {
+	if ( is_numeric($year) && $year - date('Y') > 7 ) {
+		// User is a student in 5th or lower.
+		$retVal = strtolower(substr($lastname, 0, 1)).$lunchcode;
+	} else {
+		// User is not a student or is not a student in 5th or lower.
+		$retVal = substr($firstname, 0, 1).strtolower(substr($lastname, 0, -1)).rand(100,999);
+	}
+	return $retVal;
+}
 
 function isMobile() {
     return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
