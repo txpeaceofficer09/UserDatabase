@@ -177,3 +177,17 @@ function resetPassword() {
 	showPopup('passreset.php?id='+url, 300, 125);
 	console.log('passreset.php?id='+url);
 }
+
+function toggleActive() {
+        var url = '';
+        url = $("input[type=checkbox]").map(function() {
+                if (this.checked == true) return this.name;
+        }).get().join(",");
+        showPopup('toggleactive.php?id='+url, 300, 125);
+        console.log('toggleactive.php?id='+url);
+}
+
+if ('serviceWorker' in navigator) {
+  // sw.js can literally be empty, but must exist
+  navigator.serviceWorker.register('/js/ServiceWorker.js');
+}

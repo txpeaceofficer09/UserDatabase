@@ -350,6 +350,57 @@ function procBitFlag($user, $srchVal) {
 		return $retArr[$srchVal];
 }
 
+function ActivateUser($username) {
+	global $logon_server;
+
+        putenv('LDAPTLS_REQCERT=allow');
+        $ds = ldap_connect($logon_server);
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+        ldap_start_tls($ds);
+        $bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
+
+        $userDn = getUserDN($username);
+
+        $filter="samaccountname=".$username;
+        $result=ldap_search($ds,LDAP_DN,$filter, array('useraccountcontrol'));
+        $entries=ldap_get_entries($ds, $result);
+
+	$newBitFlag = $entries[0]['useraccountcontrol'][0] + 2;
+
+        if (!ldap_modify($ds, $userDn, array('useraccountcontrol'=>$newBitFlag))) {
+                echo "LDAP Error: ".ldap_error($ds);
+        }
+
+        ldap_unbind($ds);
+}
+
+function DeactivateUser($username) {
+        global $logon_server;
+
+        putenv('LDAPTLS_REQCERT=allow');
+        $ds = ldap_connect($logon_server);
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+        ldap_start_tls($ds);
+        $bd = ldap_bind($ds, LDAP_USER, LDAP_PASS);
+
+        $userDn = getUserDN($username);
+
+        $filter="samaccountname=".$username;
+        $result=ldap_search($ds,LDAP_DN,$filter, array('useraccountcontrol'));
+        $entries=ldap_get_entries($ds, $result);
+
+        $newBitFlag = $entries[0]['useraccountcontrol'][0] - 2;
+
+        if (!ldap_modify($ds, $userDn, array('useraccountcontrol'=>$newBitFlag))) {
+                echo "LDAP Error: ".ldap_error($ds);
+        }
+
+        ldap_unbind($ds);
+}
+
+
 function calcPass($year, $firstname, $lastname, $lunchcode) {
 	if ( is_numeric($year) && $year - date('Y') > 7 ) {
 		// User is a student in 5th or lower.

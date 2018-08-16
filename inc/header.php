@@ -25,6 +25,19 @@ $version = number_format(microtime(true), 0, '', '');
 		<link rel="stylesheet" media="screen and (max-width: 592px) and (orientation: landscape)" href="css/mobile.css?v=<?php echo $version; ?>" />
 		<link rel="stylesheet" media="screen and (max-width: 960px) and (orientation: portrait)" href="css/tablet.css?v=<?php echo $version; ?>" />
 		<link rel="stylesheet" media="screen and (max-width: 1024px) and (orientation: landscape)" href="css/tablet.css?v=<?php echo $version; ?>" />
+
+		<meta property="og:title" content="Kirbyville CISD - User Database" />
+		<meta property="og:image" content="/images/Kirbyville-Logo.png" />
+		<meta property="og:url" content="https://kcisd-tech/login.php" />
+		<meta property="og:description" content="Database used by the Kirbyville CISD Tech Team to keep track of user information." />
+
+		<meta name="theme-color" content="#0c3c6c">
+		<meta name="apple-mobile-web-app-status-bar-style" content="#0C3C6C">
+		<meta name="appiconurlpath" content="https://igappblobs.azureedge.net/users/2421629/2700740">
+
+		<link rel="manifest" href="/manifest.json" />
+
+		<!-- <script async  src="https://cdn.rawgit.com/GoogleChrome/pwacompat/v2.0.1/pwacompat.min.js"></script> -->
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, viewport-fit=cover" />
 		<script src="js/jquery-3.2.1.min.js?v=<?php echo $version; ?>"></script>
@@ -75,6 +88,7 @@ if ($_SERVER['PHP_SELF'] == "/index.php" || $_SERVER['PHP_SELF'] == "/login.php"
 		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"New\" id=\"newbtn\" type=\"button\" onClick=\"showPopup('create.php', 340, 350);\" />\n" : "") : "") .
 		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"PDF\" id=\"massPDF\" type=\"button\" onClick=\"massPDF();\" />\n" : "") .
 		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"Delete\" id=\"delbtn\" type=\"button\" onClick=\"delusers();\" />\n" : "") .
+		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<input value=\"Toggle Active\" id=\"toggleActive\" type=\"button\" onClick=\"toggleActive();\" />\n" : "") .
 		(isset($_SESSION['uname']) && isAdmin($_SESSION['uname']) ? "\t\t\t<!--<input value=\"Reset Password\" id=\"resetPass\" type=\"button\" onClick=\"resetPassword();\" />-->\n" : "") .
 		"\t\t</div>\n\n" .
 		"\t\t<div id=\"popup\">\n" .
